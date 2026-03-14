@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   const systemPrompt = `Return a JSON array of job objects: [{"company": "...", "title": "...", "location": "...", "link": "#", "requirements": [], "salary": null, "type": "Full-time"}]. Return ONLY JSON.`;
 
-  let jobs: any[] = [];
+  let jobs: object[] = [];
   try {
     const aiResponse = await generateCompletion(systemPrompt, `Jobs: ${jobTitle} ${location}\n${rawContent}`, "llama-3.3-70b-versatile");
     const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
@@ -65,7 +65,7 @@ export async function GET() {
 
   try {
     const supabase = createAdminClient();
-    const { data, error } = await supabase.from("saved_jobs").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
+    const { data } = await supabase.from("saved_jobs").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
     return NextResponse.json({ jobs: data || [] });
   } catch {
     return NextResponse.json({ jobs: [] });

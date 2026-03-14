@@ -38,7 +38,6 @@ Format it as a complete, ready-to-use resume with all standard sections.`;
   try {
     resumeContent = await generateCompletion(systemPrompt, userPrompt, "llama-3.3-70b-versatile");
   } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : "Generation failed";
     isDemo = true;
     resumeContent = `# ${fullName}\n${email} | ${phone} | ${location}\n\n---\n\n⚠️ **Demo Mode** — Groq API key is invalid or Groq is offline.\n\n## Professional Summary\nExperienced ${jobTitle} with a strong background in delivering results.\n\n## Experience\n${experience}\n\n## Education\n${education}\n\n## Skills\n${skills}`;
   }

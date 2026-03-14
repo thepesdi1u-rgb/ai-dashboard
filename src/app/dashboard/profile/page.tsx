@@ -1,8 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { User, Mail, LogOut, Shield, Calendar, Sparkles } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { User, Mail, LogOut, Shield, Sparkles } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
