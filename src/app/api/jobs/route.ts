@@ -3,6 +3,16 @@ import { auth } from "@/auth";
 import { generateCompletion } from "@/lib/groq";
 import { createAdminClient } from "@/lib/supabase/server";
 
+interface JobData {
+  company: string;
+  title: string;
+  location: string;
+  link: string;
+  requirements: string | string[];
+  salary?: string | null;
+  type?: string;
+}
+
 async function crawlJobsWithFirecrawl(query: string, location: string) {
   const apiKey = process.env.FIRECRAWL_API_KEY;
   if (!apiKey || apiKey === "fc-your_firecrawl_api_key_here") return getMockJobs(query, location);
@@ -42,7 +52,8 @@ export async function POST(req: NextRequest) {
 
   const systemPrompt = `Return a JSON array of job objects: [{"company": "...", "title": "...", "location": "...", "link": "#", "requirements": [], "salary": null, "type": "Full-time"}]. Return ONLY JSON.`;
 
-  let jobs: object[] = [];
+
+  let jobs: JobData[] = [];
   try {
     const aiResponse = await generateCompletion(systemPrompt, `Jobs: ${jobTitle} ${location}\n${rawContent}`, "llama-3.3-70b-versatile");
     const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
@@ -76,17 +87,17 @@ export async function PUT(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const job = await req.json();
+  const job = await req.json() as JobData;
   try {
     const supabase = createAdminClient();
-    const { data, error } = await supabase.from("saved_jobs").insert({
+    const { data } = await supabase.from("saved_jobs").insert({
       user_id: session.user.id,
       ...job,
       requirements: Array.isArray(job.requirements) ? job.requirements.join(", ") : job.requirements,
       created_at: new Date().toISOString(),
     }).select().single();
 
-    if (!error && data) return NextResponse.json({ job: data });
+    if (data) return NextResponse.json({ job: data });
   } catch {}
 
   return NextResponse.json({ job: { ...job, id: `local-${Date.now()}`, _unsaved: true } });

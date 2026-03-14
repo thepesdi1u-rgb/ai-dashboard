@@ -31,8 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ notes: data || [] });
-  } catch (err) {
-    console.error("Notes GET crashed:", err);
+  } catch {
     return NextResponse.json({ notes: [] });
   }
 }
@@ -85,8 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ note: data }, { status: 201 });
-  } catch (err) {
-    console.error("Notes POST crashed:", err);
+  } catch {
     return NextResponse.json({ error: "Server error — check console" }, { status: 500 });
   }
 }
