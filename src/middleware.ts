@@ -1,5 +1,8 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 import { NextResponse } from "next/server";
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
@@ -11,6 +14,7 @@ export default auth((req) => {
 
   if (isApiAuthRoute) return NextResponse.next();
   if (isPublicPage) return NextResponse.next();
+  
   if (isAuthPage) {
     if (isLoggedIn) {
       return NextResponse.redirect(new URL("/dashboard", nextUrl));
