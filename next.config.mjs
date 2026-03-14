@@ -4,8 +4,13 @@ const nextConfig = {
     domains: ["lh3.googleusercontent.com", "img.youtube.com", "i.ytimg.com"],
   },
   webpack: (config, { isServer }) => {
-    // 1. Fix the 'jose' warning by aliasing the problematic deflate module to a no-op
-    // since we don't use JWE compression in this app.
+    // 1. Completely ignore warnings from jose (Auth.js) in the Edge Runtime
+    config.ignoreWarnings = [
+      { module: /node_modules\/jose/ },
+      { message: /Serialization big strings/ },
+    ];
+
+    // 2. Fix the 'jose' alias for safety
     if (isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -14,9 +19,8 @@ const nextConfig = {
       };
     }
 
-    // 2. Suppress the "big strings" serialization warning
+    // 3. Suppress secondary logging noise
     config.infrastructureLogging = { level: 'error' };
-    config.stats = { warningsFilter: [/Serialization big strings/] };
 
     return config;
   },
